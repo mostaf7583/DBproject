@@ -1,5 +1,4 @@
-﻿create database one;
-
+﻿
 
 create table PostGradUser(
 id int identity,
@@ -204,8 +203,7 @@ serialNo int,
 ExaminerID int,
 comment varchar(100),
 Primary Key (datee, serialNo, ExaminerID),
-Foreign Key (datee) references Defense(datee),
-Foreign Key (serialNo) references Defense(serialNumber),
+Foreign Key (datee,serialNo) references Defense,
 Foreign Key (ExaminerID) references Examiner(id)
 )
 
