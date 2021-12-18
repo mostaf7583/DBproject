@@ -125,7 +125,7 @@ create table GUCianProgressReport(
 sidd int,
 noo int,
 datee date,
-eval varchar(20),
+eval int,
 statee int,
 thesisSerialNumber int,
 supid int,
@@ -241,6 +241,7 @@ insert into GUCianstudent values (6,'saeed','ahmed','Master','Law','maadi',1.1,6
 insert into GUCianstudent values (7,'mahmoud','ayad','Master','Applied Arts','new cairo',1.2,12039)
 
 
+
 insert into NONGUCIANstudent values (8,'adam','kareem','PHD','Engineering','6th october',4.0)
 insert into NONGUCIANstudent values	(9,'hussien','tamer','Master','Pharmacy','rehab',3.8)
 insert into NONGUCIANstudent values	(10,'yasser','hamdy','Master','Law','5th settelement',3.7)
@@ -306,7 +307,7 @@ insert into Thesis values ('AI','Masters','Data/driven Test Cases Generation for
 insert into Thesis values ('Economics','Masters','The company objectives and their reflection in a pricing policy','2019/8/9','2021/12/2','2020/5/8',9.65,15,2)
 insert into Thesis values ('Machine Learning','Masters','Automated real/time support','2019/8/30','2021/6/9','2020/5/25',9.2,16,0)
 insert into Thesis values ('CS','Masters','Hardware and architecture','2019/8/6','2021/6/3','2020/5/8',8.6,17,0)
-insert into Thesis values ('Robotics','Masters','Medical eobots','2019/8/7','2021/6/9','2020/5/16',7.5,18,0)
+insert into Thesis values ('Robotics','Masters','Medical eob`ots','2019/8/7','2021/6/9','2020/5/16',7.5,18,0)
 insert into Thesis values ('Robotics','Masters','AI and Robotics','2019/8/8','2021/6/25','2020/5/9',8.7,19,0)
 insert into Thesis values ('CS','Masters','Cyber/physical systems','2019/8/9','2022/6/6','2020/5/8',7.8,20,1)
 insert into Thesis values ('AI','PHD','Acceptance of AI/Based Decision Making','2018/8/21','2022/6/3','2020/5/20',7.9,21,0)
@@ -410,7 +411,6 @@ insert into Installment values ('2020/12/30',29,40000,0)
 
 insert into Installment values ('1/6/2018',30,40000,1)
 insert into Installment values ('2020/12/30',30,40000,0)
-
 select * from Payment 
 select * from Payment P, Installment I where P.id=I.paymentID order by p.id
 select * from Payment P, Thesis T where P.id=T.payment_id
@@ -478,7 +478,7 @@ CREATE PROC EvaluateProgressReport
 @evaluation int not null
 AS
 UPDATE GUCianProgressReport  set eval=@evaluation 
-where @supervisorID=GUCianProgressReport.supid
+where @supervisorID=GUCianProgressReport.supid and eval between 0 and 3
 and 
 @thesisSerialNo =GUCianProgressReport.thesisSerialNumber
 
@@ -509,13 +509,7 @@ WHERE GUR.supid=@supervisorID;
 GO CREATE PROC SupViewProfile
 @supervisorID int
 AS
-(SELECT GUS.* from 
-GUCianstudent GUS INNER JOIN GUCianStudentRegisterThesis GUR ON GUS.id=GUR.s_id 
-WHERE GUR.sup_id=@supervisorID)
-UNION
-(SELECT GUS.* from 
-NonGUCianstudent GUS INNER JOIN NonGUCianStudentRegisterThesis GUR ON GUS.id=GUR.s_id 
-WHERE GUR.sup_id=@supervisorID)
+SELECT * FROM Supervisor WHERE Supervisor.id = @supervisorID
 
 GO
 CREATE PROC UpdateSupProfile
@@ -523,18 +517,5 @@ CREATE PROC UpdateSupProfile
 @name varchar(20), 
 @faculty varchar(20)
 AS
-IF EXISTS (SELECT *  FROM
-GUCianstudent GUS INNER JOIN GUCianStudentRegisterThesis GUR 
-ON GUS.id=GUR.s_id 
-WHERE GUR.sup_id=@supervisorID)--fixing---
-UPDATE GUCianstudent SET firstName =@NAME,faculty=@faculty WHERE EXISTS  (SELECT *  FROM
-GUCianstudent GUS INNER JOIN GUCianStudentRegisterThesis GUR 
-ON GUS.id=GUR.s_id 
-WHERE GUR.sup_id=@supervisorID) ;                           
-ELSE
-UPDATE NonGUCianstudent SET firstName =@NAME,faculty=@faculty WHERE EXISTS  (SELECT *  FROM
-NonGUCianstudent GUS INNER JOIN NonGUCianStudentRegisterThesis GUR 
-ON GUS.id=GUR.s_id 
-WHERE GUR.sup_id=@supervisorID) ;                           
+UPDATE  supervisor set id=@supervisorID ,faculty=@faculty  where supervisor.id =@supervisorID             
 
---------PROBLEM--------------
