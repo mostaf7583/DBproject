@@ -1,31 +1,34 @@
-﻿
+﻿create database finalsubmission;
+
+go
+use finalsubmission
 
 create table PostGradUser(
 id int identity,
-email varchar(20),
+email varchar(50) ,
 passwordd varchar(20),
 primary key(id)
 )
 
-
 create table Admin(
 id int,
-foreign key (id) references PostGradUser(id) on delete cascade on update cascade,
-primary key (id)
+primary key (id),
+foreign key (id) references PostGradUser(id) on delete cascade on update cascade
+
 )
 
-
- create table GUCianstudent(
+create table GUCianstudent(
 id int,
 firstName varchar(20),
 lastname varchar(20),
 typee varchar(20),
 faculty varchar(20),
 addresss varchar(35),
-GPA int ,
+GPA decimal(2,1) ,
 undergradID int,
 Primary key(id),
-foreign key (id) references PostGradUser(id) on delete cascade on update cascade
+foreign key (id) references PostGradUser(id) on delete cascade on update cascade,
+Check (GPA between 0.7 and 5.0)
 )
 
 create table NONGUCIANstudent(
@@ -35,32 +38,34 @@ lastname varchar(20),
 typee varchar(20),
 faculty varchar(20),
 addresss varchar(35),
-GPA int,
+GPA decimal (2,1) ,
 primary key (id),
-Foreign Key (id) references PostGradUser(id) on delete cascade on update cascade
+Foreign Key (id) references PostGradUser(id) on delete cascade on update cascade,
+Check (GPA between 0.0 and 4.0)
 )
 
 create table GUCStudentPhoneNumber(
- id int  ,
- phone int   ,
- primary key (id, phone),
-  foreign key (id) references GUCianstudent(id) on delete cascade on update cascade
+id int  ,
+phone varchar(20)   ,
+primary key (id, phone),
+foreign key (id) references GUCianstudent(id) on delete cascade on update cascade
  )
- create table nonGUCStudentPhoneNumber(
- id int  ,
- phone int ,
- primary key(id, phone),
-  foreign key (id) references NONGUCIANstudent(id) on delete cascade on update cascade
+
+create table nonGUCStudentPhoneNumber(
+id int  ,
+phone varchar (20) ,
+primary key(id, phone),
+foreign key (id) references NONGUCIANstudent(id) on delete cascade on update cascade
  )
-  create table course( 
-  id int primary key,
-  fees int ,
-  credithours int ,
-  code int)
 
+create table course( 
+id int primary key identity,
+fees decimal ,
+credithours int ,
+code varchar(10) )
 
-create table supervisor 
-(id int,
+create table supervisor (
+id int,
 namee varchar(20),
 faculty varchar (20),
 primary key (id),
@@ -68,36 +73,36 @@ Foreign Key (id) references PostGradUser(id) on delete cascade on update cascade
 )
 
 create table Payment(
-id int primary key,
-amount int,
+id int primary key identity,
+amount decimal(12,2),
 no_installments int,
-fundPercentage int
+fundPercentage decimal(2,1)
 );
 
 create table Thesis (
-SerialNumber int primary key,
+SerialNumber int primary key identity,
 field varchar(20),
 type1 varchar(20),
-title varchar(30),
+title varchar(70),
 startDate date ,
 endDate date,
 defenseDate date,
 years as (YEAR(endDate)-YEAR(startDate)),
-grade int ,
+grade decimal(4,2) ,
 payment_id int, 
-noExtenstion bit,
-foreign key (payment_id) references Payment(id)  on update cascade on delete cascade
+noExtension int,
+foreign key (payment_id) references Payment(id) on update cascade on delete cascade
+
 )
 
 create table Publication(
-id int primary key,
-title varchar(20),
+id int primary key identity,
+title varchar(70),
 dateP date,
 place varchar(20),
 accepted bit,
-host varchar(20)
+host varchar(50)
 );
-
 
 create table Examiner(
 id int,
@@ -105,30 +110,30 @@ namee varchar(20),
 FieldOfWork varchar (20),
 isNational bit,
 primary key(id),
-Foreign key (id) references PostGradUser(id)
+Foreign key (id) references PostGradUser(id)on  delete cascade on update cascade
 );
 
 create table Defense(
 SerialNumber int,
-datee date,
+datee datetime,
 locationn varchar(20),
-grade varchar,
+grade decimal(4,2) ,
 primary key (SerialNumber, datee),
 Foreign key (SerialNumber) references Thesis(serialNumber) on  delete cascade on update cascade
 );
 
-
-create table GUCianProgessReport(
+create table GUCianProgressReport(
 sidd int,
 noo int,
 datee date,
-eval varchar(20),
+eval int,
 statee int,
 thesisSerialNumber int,
 supid int,
+descriptionn varchar(500), 
 primary key (sidd, noo),
 Foreign key (sidd) references GucianStudent(id) ,
-Foreign key (thesisSerialNumber) references Thesis(serialNumber) ,
+Foreign key (thesisSerialNumber) references Thesis(serialNumber)on  delete cascade on update cascade ,
 Foreign key (supid) references Supervisor(id)
 );
 
@@ -140,9 +145,10 @@ eval varchar(20),
 statee int,
 thesisSerialNumber int,
 supid int,
+descriptionn varchar(500), 
 Primary Key (sidd, noo),
 Foreign Key (sidd) references NonGUCianStudent(id) ,
-Foreign Key (thesisSerialNumber) references Thesis(serialNumber),
+Foreign Key (thesisSerialNumber) references Thesis(serialNumber)on  delete cascade on update cascade,
 Foreign Key (supid) references Supervisor(id)
 );
 
@@ -155,56 +161,53 @@ Primary Key(datee, paymentID),
 Foreign Key (paymentID) references payment(id) on  delete cascade on update cascade
 );
 
-
 create table NonGucianStudentPayForCourse (
- s_id int ,
- paymentNo int,
- c_id int,
+s_id int ,
+paymentNo int,
+c_id int,
 primary key(s_id,paymentNo,c_id),
 Foreign Key (s_id) references NonGucianStudent(id)on  delete cascade on update cascade,
 Foreign Key (paymentNo) references Payment(id)  on  delete cascade on update cascade,
 Foreign Key (c_id) references  Course(id)  on  delete cascade on update cascade
 )
---NonGucianStudentTakeCourse (sid, cid, grade) _ _ _ _
+
 create table NonGucianStudentTakeCourse (
- s_id int,
- c_id int,
- grade int,
+s_id int,
+c_id int,
+grade decimal(4,2),
 primary key (s_id,c_id),
 Foreign Key (s_id) references NonGucianStudent(id)on  delete cascade on update cascade,
 Foreign Key (c_id) references  Course(id)  on  delete cascade on update cascade
 )
---GUCianStudentRegisterThesis (sid, sup_id, serial_no)
+
 create table GUCianStudentRegisterThesis(
- s_id     int,
- sup_id   int,
- serialno int,
+s_id     int,
+sup_id   int,
+serialno int,
 primary key (s_id,sup_id,serialno),
 Foreign Key (s_id) references GucianStudent(id),
 Foreign Key (sup_id) references Supervisor(id),
-Foreign Key (serialno) references Thesis(SerialNumber)
+Foreign Key (serialno) references Thesis(SerialNumber)on  delete cascade on update cascade
 )
 
 create table NonGUCianStudentRegisterThesis(
- s_id     int,
- sup_id   int,
- serialno int,
+s_id     int,
+sup_id   int,
+serialno int,
 primary key (s_id,sup_id,serialno),
-
 Foreign Key (s_id) references NonGucianStudent(id),
-Foreign Key (sup_id) references Supervisor(id),
-Foreign Key (serialno) references Thesis(SerialNumber)
+Foreign Key (sup_id) references Supervisor(id) ,
+Foreign Key (serialno) references Thesis(SerialNumber) on  delete cascade on update cascade
 );
 
-
 create table ExaminerEvaluateDefense(
-datee date,
+datee datetime,
 serialNo int,
 ExaminerID int,
-comment varchar(100),
+comment varchar(300),
 Primary Key (datee, serialNo, ExaminerID),
-Foreign Key (datee,serialNo) references Defense,
-Foreign Key (ExaminerID) references Examiner(id)
+Foreign Key (serialNo,datee) references Defense on  delete cascade on update cascade,
+Foreign Key (ExaminerID) references Examiner(id)on  delete cascade on update cascade
 )
 
 create table ThesisHasPublication(
@@ -214,3 +217,6 @@ Primary Key(serialNo, pubid),
 Foreign Key (serialNo) references Thesis(serialNumber)on  delete cascade on update cascade,
 Foreign Key (pubid) references Publication(id)on  delete cascade on update cascade
 )
+
+
+
