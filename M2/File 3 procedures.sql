@@ -869,3 +869,86 @@ BEGIN
 END
 ELSE
         PRINT 'Thesis Serial Number Does not Exist '
+
+go
+CREATE PROC StudentRegister2
+@password varchar(20),
+@Gucian bit,
+@email varchar(50)
+
+AS
+
+DECLARE @ID int
+
+INSERT INTO PostGradUser VALUES (@email, @password)
+
+select @ID = max(P.id)
+from PostGradUser P 
+
+IF @Gucian = 1
+INSERT INTO GUCianStudent (id ) VALUES (@ID)
+
+ELSE
+INSERT INTO NonGUCianStudent (id) VALUES (@ID);
+
+go
+
+CREATE PROC examinerRegister 
+@password varchar(20),
+@email varchar(50)
+
+AS
+
+DECLARE @ID int
+
+INSERT INTO PostGradUser VALUES (@email, @password)
+
+select @ID = max(P.id)
+from PostGradUser P 
+
+INSERT INTO examiner (id ) VALUES (@ID)
+
+go
+
+CREATE PROC SupervisorRegister2
+@password varchar(20),
+@email varchar(50)
+
+AS
+
+Declare @ID int
+INSERT into PostGradUser VALUES (@email, @password)
+
+select @ID = max(P.id)
+from PostGradUser P 
+
+INSERT into supervisor (id) VALUES (@ID)
+
+go
+Create proc userLogin
+@id int,
+@password varchar(20),
+@success bit output,
+@type int output
+as
+begin
+if exists(
+select ID,password
+from PostGradUser
+where id=@id and password=@password)
+begin
+set @success =1
+-- check user type 0-->Student,1-->Admin,2-->Supervisor ,3-->Examiner
+if exists(select id from GucianStudent where id=@id union select id from
+NonGucianStudent where id=@id )
+set @type=0
+if exists(select id from Admin where id=@id)
+set @type=1
+if exists(select id from Supervisor where id=@id)
+set @type=2
+if exists(select id from Examiner where id=@id)
+set @type=3
+end
+else
+set @success=0
+end
