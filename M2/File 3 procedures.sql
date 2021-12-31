@@ -1,4 +1,16 @@
 ﻿use finalsubmission
+go 
+CREATE PROC getallthesis
+@studentId
+As
+SELECT T.title FROM 
+Thesis T INNER JOIN NonGUCianStudentRegisterThesis NGSR on 
+T.SerialNumber=NGSR.serialno-
+WHERE NGSR.s_id=@studentId
+
+
+
+
 
 go
 -- 1a) Registering a student --
